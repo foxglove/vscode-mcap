@@ -1,0 +1,12 @@
+**
+!package.json
+!README.md
+!LICENSE
+!CHANGELOG.md
+!THIRD_PARTY_NOTICES.md
+!assets/icon.png
+!dist/extension.js
+!dist/webview.js
+!dist/module.wasm
+!dist/wasm-lz4.wasm
+!dist/wasm-zstd.wasm

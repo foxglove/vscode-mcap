@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'nonce-{{nonce}}'; style-src 'nonce-{{nonce}}'; connect-src {{cspSource}}; frame-src https://embed.foxglove.dev; img-src {{cspSource}} data:;"
+    />
+    <title>MCAP Viewer</title>
+    <style nonce="{{nonce}}">
+      {{styles}}
+    </style>
+  </head>
+  <body>
+    <header id="appHeader">
+      <nav aria-label="MCAP views">
+        <button id="infoTab" aria-pressed="true">File info</button>
+        <button id="viewerTab" aria-pressed="false">Foxglove</button>
+      </nav>
+      <span id="filename" class="filename">MCAP Viewer</span>
+      <button id="refresh" class="quiet" title="Read updated file information">
+        Refresh
+      </button>
+      <div id="viewerActions" hidden>
+        <button
+          id="options"
+          class="quiet"
+          aria-expanded="false"
+          aria-controls="viewerOptions"
+          title="Layouts, sign-in help, and viewer options"
+        >
+          Viewer options
+        </button>
+      </div>
+    </header>
+    <div id="notice" role="status" hidden>
+      <span id="noticeText"></span
+      ><button id="dismissNotice" aria-label="Dismiss notification">×</button>
+    </div>
+    <main id="infoPane">
+      <div class="section-heading">
+        <div>
+          <h1>File overview</h1>
+          <p id="infoStatus" class="muted" role="status">
+            Reading MCAP information…
+          </p>
+        </div>
+      </div>
+      <div id="summary"></div>
+      <div id="topics" hidden>
+        <div class="section-heading">
+          <h2>Channels <span id="channelCount" class="muted"></span></h2>
+          <input
+            id="filter"
+            aria-label="Filter channels"
+            placeholder="Filter channels…"
+            type="search"
+          />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Topic</th>
+                <th>Messages</th>
+                <th>Encoding</th>
+                <th>Schema</th>
+              </tr>
+            </thead>
+            <tbody id="channels"></tbody>
+          </table>
+        </div>
+        <p id="emptyChannels" class="empty-state" hidden>
+          No matching channels.
+        </p>
+        <details id="schemaDetails">
+          <summary>
+            Schema definitions <span id="schemaCount" class="muted"></span>
+          </summary>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Encoding</th>
+                  <th>Size</th>
+                </tr>
+              </thead>
+              <tbody id="schemas"></tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    </main>
+    <section id="viewerPane" hidden aria-label="Foxglove viewer">
+      <p id="viewerStatus" class="muted" role="status" hidden></p>
+      <div id="viewer"></div>
+    </section>
+    <aside id="viewerOptions" aria-label="Viewer options" hidden>
+      <div class="section-heading">
+        <h2>Viewer options</h2>
+        <button
+          id="closeOptions"
+          class="quiet"
+          aria-label="Close viewer options"
+        >
+          ×
+        </button>
+      </div>
+      <label for="layouts">Layout</label>
+      <select id="layouts">
+        <option value="">Default layout</option>
+      </select>
+      <p class="muted">Your last layout is restored for the next file.</p>
+      <div class="actions">
+        <button id="cloud">Load shared layouts…</button
+        ><button id="import">Import JSON…</button
+        ><button id="remove" class="quiet">Remove imported layout</button>
+      </div>
+      <details id="signInHelp">
+        <summary>Sign-in help</summary>
+        <p class="muted">
+          Foxglove asks you to sign in only when needed. If its browser popup is
+          blocked, open the sign-in page and enter the activation code shown in
+          the viewer.
+        </p>
+        <button id="signIn">Open sign-in page</button>
+      </details>
+      <div class="options-footer">
+        <button id="retry" class="quiet">Reload viewer</button>
+      </div>
+    </aside>
+    <script nonce="{{nonce}}" src="{{script}}"></script>
+  </body>
+</html>
