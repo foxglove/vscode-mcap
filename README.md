@@ -21,5 +21,3 @@ Under **Viewer options**:
 - **Sign-in help → Open sign-in page** lets you enter the viewer’s activation code if its sign-in popup is blocked.
 
 Layout edits are saved locally, not back to your Foxglove account. API keys are stored securely by the editor; use **MCAP: Clear Foxglove API Key** in the Command Palette to remove one.
-
-The viewer defaults to a 512 MB file limit, configurable with `mcap.maxViewerFileSizeMB`. Larger files can still be inspected in **File info**.

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { writeFile, mkdir } from "node:fs/promises";
 import { chromium, type Frame } from "playwright";
-import { fixture } from "./fixtures";
+import { fixture, largeFixture } from "./fixtures";
 
 async function until<T>(
   fn: () => Promise<T | undefined>,
@@ -136,9 +136,25 @@ export async function run() {
         if(e.data.type==='get-layout') parent.postMessage({type:'foxglove-layout-data',payload:window.currentLayout},'*');
         if(e.data.type==='handshake-ack'){
           window.currentLayout=e.data.payload.initialLayoutParams.opaqueLayout || window.currentLayout;
-          const file=e.data.payload.initialDataSource.file;
-          window.fileBytes=Array.from(new Uint8Array(await file.arrayBuffer()));
-          window.fileName=file.name;
+          try {
+            const source=e.data.payload.initialDataSource;
+            if(source.type !== 'remote-file' || source.file) throw new Error('Expected URL-only data source');
+            window.fileUrl=source.urls[0];
+            // Match Foxglove's reader: discover size with GET, abort immediately,
+            // then open independent byte-range requests.
+            const controller=new AbortController();
+            const probe=await fetch(window.fileUrl,{signal:controller.signal,cache:'no-store'});
+            controller.abort();
+            if(!probe.ok || probe.headers.get('accept-ranges') !== 'bytes') throw new Error('Missing range support');
+            const size=Number(probe.headers.get('content-length'));
+            window.fileSize=size;
+            const first=await fetch(window.fileUrl,{headers:{Range:'bytes=0-7'}});
+            const last=await fetch(window.fileUrl,{headers:{Range:'bytes=-8'}});
+            if(first.status !== 206 || last.status !== 206) throw new Error('Expected partial responses');
+            window.firstBytes=Array.from(new Uint8Array(await first.arrayBuffer()));
+            window.lastBytes=Array.from(new Uint8Array(await last.arrayBuffer()));
+            window.contentRange=last.headers.get('content-range');
+          } catch(error) { window.transportError=String(error); throw error; }
           parent.postMessage({type:'foxglove-handshake-complete'},'*');
         }
       });
@@ -161,11 +177,20 @@ export async function run() {
       "embed frame",
     );
     assert.deepEqual(
-      await embed.evaluate("window.fileBytes"),
-      Array.from(data),
-      "exact MCAP bytes reached Foxglove SDK iframe",
+      await embed.evaluate("window.firstBytes"),
+      Array.from(data.subarray(0, 8)),
+      "MCAP header reached iframe through HTTP range read",
     );
-    assert.equal(await embed.evaluate("window.fileName"), "sample.mcap");
+    assert.deepEqual(
+      await embed.evaluate("window.lastBytes"),
+      Array.from(data.subarray(-8)),
+      "MCAP footer reached iframe through suffix range read",
+    );
+    assert.equal(await embed.evaluate("window.fileSize"), data.length);
+    assert.equal(
+      await embed.evaluate("window.contentRange"),
+      `bytes ${data.length - 8}-${data.length - 1}/${data.length}`,
+    );
     assert.equal(await frame.locator("#viewerOptions").isVisible(), false);
     assert.equal(await frame.locator("#viewerStatus").isVisible(), false);
     assert.equal(await frame.locator("#focus, #exitFocus").count(), 0);
@@ -341,7 +366,7 @@ export async function run() {
         ),
       });
       console.log(
-        `PASS ${vscode.env.appName}: automatic editor, summary, filtering, refresh, byte-exact SDK file transfer, layout selection, tab lifecycle, live embed loaded.`,
+        `PASS ${vscode.env.appName}: automatic editor, summary, filtering, refresh, byte-exact SDK HTTP range reads, layout selection, tab lifecycle, live embed loaded.`,
       );
       console.log(`Live embed state: ${liveText.slice(0, 500)}`);
       const signIn = live.getByRole("button", {
@@ -378,12 +403,21 @@ export async function run() {
         "layout snapshot",
       );
       await frame.locator("#viewerTab").click();
+      const closedUrl = await embed.evaluate<string>("window.fileUrl");
       const nextPath = join(process.env.MCAP_TEST_DIR!, "second.mcap");
-      await fixture(nextPath);
+      const largeSize = await largeFixture(nextPath);
       await vscode.commands.executeCommand("workbench.action.closeAllEditors");
       await vscode.commands.executeCommand(
         "vscode.open",
         vscode.Uri.file(nextPath),
+      );
+      await until(
+        async () =>
+          fetch(closedUrl).then(
+            () => undefined,
+            () => true,
+          ),
+        "closed editor revokes range endpoint",
       );
       const restored = await until<Frame>(async () => {
         for (const page of context.pages())
@@ -409,6 +443,43 @@ export async function run() {
         await restoredEmbed.evaluate("window.currentLayout.layout"),
         "Plot!remembered",
         "viewer layout restored from saved preferences",
+      );
+      assert.equal(await restoredEmbed.evaluate("window.fileSize"), largeSize);
+      assert.ok(
+        largeSize > 1024 ** 4,
+        "browser opens a terabyte MCAP without copying it",
+      );
+      await restored.locator("#infoTab").click();
+      await until(
+        async () =>
+          (await restored.locator(".cards").innerText()).includes("TiB") ||
+          undefined,
+        "large MCAP indexed summary",
+      );
+      console.log(
+        "PASS terabyte MCAP range access from browser and indexed file info",
+      );
+      await restored.locator("#viewerTab").click();
+      const oldUrl = await restoredEmbed.evaluate<string>("window.fileUrl");
+      await restored.locator("#options").click();
+      await restored.locator("#retry").click();
+      await until(async () => {
+        const child = restored
+          .childFrames()
+          .find((f) => f.url().startsWith("https://embed.foxglove.dev"));
+        if (!child) return;
+        const newUrl = await child.evaluate<string | undefined>(
+          "window.lastBytes && window.fileUrl",
+        );
+        return newUrl && newUrl !== oldUrl ? true : undefined;
+      }, "reload restores range playback");
+      await until(
+        async () =>
+          fetch(oldUrl).then(
+            () => undefined,
+            () => true,
+          ),
+        "reload revokes previous endpoint",
       );
       await restored.locator("#infoTab").click();
       console.log("PASS tab and layout restoration across files");

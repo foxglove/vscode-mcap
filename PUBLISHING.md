@@ -8,8 +8,6 @@ The project uses the MIT license in `LICENSE`, matching Foxglove CLI. Third-part
 
 Set the publisher account’s display name to **Foxglove** in the registry settings. The manifest’s publisher field is the stable account ID, not its display name. The package author is **Foxglove**.
 
-The `robotics` tag is included in `keywords`; VS Code does not support Robotics as a category. Keep the category as Visualization.
-
 The publisher is set to `foxglove`, making the extension identifier `foxglove.mcap-viewer`. The public repository URL is still undecided. Once it is chosen, add the repository, homepage, and issue-tracker fields below to `package.json`:
 
 ```json
@@ -42,7 +40,8 @@ The package command checks release metadata and bundles runtime JavaScript, deco
 Before the first public upload:
 
 - Install the VSIX in a normal VS Code profile and an authenticated Cursor profile.
-- Open a representative MCAP, including one of your compressed recordings.
+- Open a representative MCAP, including a large indexed recording and one of your compressed recordings.
+- Verify range playback and reload in VS Code and Cursor; check SSH/container port forwarding separately. The endpoint binds to loopback and is resolved through `vscode.env.asExternalUri`.
 - Verify Foxglove sign-in, playback, and switching to a real shared account layout.
 - Verify importing a personal JSON layout, opening a second MCAP, and removing the imported layout.
 - Check the extension listing's publisher, MCAP icon, support links, and version.

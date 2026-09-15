@@ -2,12 +2,21 @@ import * as vscode from "vscode";
 import { basename } from "node:path";
 import { createHash } from "node:crypto";
 import { html } from "./html";
+import { startRangeServer, type RangeServer } from "./rangeServer";
 import { LayoutStore } from "./layoutStore";
 import { Preferences } from "./preferences";
 import { inspectFile } from "./info";
 import { layoutData, listLayouts, type Layout } from "./layouts";
 
 export function activate(context: vscode.ExtensionContext) {
+  const servers = new Set<RangeServer>();
+  let stopping = false;
+  context.subscriptions.push({
+    dispose() {
+      stopping = true;
+      for (const server of servers) void server.dispose();
+    },
+  });
   const preferences = new Preferences(context.globalState);
   const layoutStore = new LayoutStore(context.globalState);
   const setKey = async () => {
@@ -43,12 +52,11 @@ export function activate(context: vscode.ExtensionContext) {
           const media = vscode.Uri.joinPath(context.extensionUri, "dist");
           webview.options = {
             enableScripts: true,
-            localResourceRoots: [
-              media,
-              vscode.Uri.joinPath(document.uri, ".."),
-            ],
+            localResourceRoots: [media],
           };
           let scan: AbortController | undefined;
+          let fileServer: RangeServer | undefined;
+          let fileGeneration = 0;
           let disposed = false;
           const disposables: vscode.Disposable[] = [];
           let infoGeneration = 0;
@@ -161,24 +169,36 @@ export function activate(context: vscode.ExtensionContext) {
                     await readInfo();
                     break;
                   case "loadFile": {
-                    const size = (await vscode.workspace.fs.stat(document.uri))
-                      .size;
-                    const limit =
-                      vscode.workspace
-                        .getConfiguration("mcap", document.uri)
-                        .get<number>("maxViewerFileSizeMB", 512) *
-                      1024 *
-                      1024;
-                    if (size > limit)
-                      throw new Error(
-                        `This file is ${(size / 1024 / 1024).toFixed(1)} MB. The viewer copies files into memory; increase mcap.maxViewerFileSizeMB (currently ${limit / 1024 / 1024} MB) to load it. File info remains available.`,
+                    const generation = ++fileGeneration;
+                    if (fileServer) {
+                      const old = fileServer;
+                      fileServer = undefined;
+                      servers.delete(old);
+                      await old.dispose();
+                    }
+                    const server = await startRangeServer(document.uri.fsPath);
+                    servers.add(server);
+                    try {
+                      // Resolves/forwards the extension-host loopback port for SSH and containers.
+                      const uri = await vscode.env.asExternalUri(
+                        vscode.Uri.parse(server.url),
                       );
-                    await post({
-                      type: "file",
-                      url: webview.asWebviewUri(document.uri).toString(),
-                      size,
-                      name: basename(document.uri.fsPath),
-                    });
+                      if (
+                        disposed ||
+                        stopping ||
+                        generation !== fileGeneration
+                      ) {
+                        servers.delete(server);
+                        await server.dispose();
+                        break;
+                      }
+                      fileServer = server;
+                      await post({ type: "file", url: uri.toString() });
+                    } catch (error) {
+                      servers.delete(server);
+                      await server.dispose();
+                      throw error;
+                    }
                     break;
                   }
                   case "importLayout": {
@@ -263,6 +283,11 @@ export function activate(context: vscode.ExtensionContext) {
           );
           panel.onDidDispose(() => {
             disposed = true;
+            fileGeneration++;
+            if (fileServer) {
+              servers.delete(fileServer);
+              void fileServer.dispose();
+            }
             scan?.abort();
             for (const d of disposables) d.dispose();
           });

@@ -57,3 +57,62 @@ export async function fixture(
   await writeFile(path, data);
   return data;
 }
+
+/** Valid indexed MCAP with a sparse private record before the message chunks. */
+export async function largeFixture(path: string) {
+  const { open } = await import("node:fs/promises");
+  const file = await open(path, "w+");
+  let position = 0;
+  const write = async (data: Uint8Array) => {
+    let offset = 0;
+    while (offset < data.length) {
+      const { bytesWritten } = await file.write(
+        data,
+        offset,
+        data.length - offset,
+        position,
+      );
+      offset += bytesWritten;
+      position += bytesWritten;
+    }
+  };
+  try {
+    const writer = new McapWriter({
+      writable: { position: () => BigInt(position), write },
+    });
+    await writer.start({ profile: "", library: "sparse-mcap-test" });
+    const padding = Buffer.alloc(9);
+    padding[0] = 0x80; // Application-private record, ignored by standard readers.
+    padding.writeBigUInt64LE(1024n ** 4n, 1);
+    await write(padding);
+    position += 1024 ** 4;
+    const schemaId = await writer.registerSchema({
+      name: "Reading",
+      encoding: "jsonschema",
+      data: Buffer.from('{"type":"object"}'),
+    });
+    const channelId = await writer.registerChannel({
+      schemaId,
+      topic: "/sensor",
+      messageEncoding: "json",
+      metadata: new Map(),
+    });
+    await writer.addMessage({
+      channelId,
+      sequence: 0,
+      logTime: 1700000000000000001n,
+      publishTime: 0n,
+      data: Buffer.from('{"value":42}'),
+    });
+    await writer.end();
+    // The writer didn't see the private record. Disable the optional data-section
+    // checksum; chunk and summary checksums still come from the writer.
+    const footer = Buffer.alloc(37);
+    await file.read(footer, 0, footer.length, position - footer.length);
+    const summaryStart = Number(footer.readBigUInt64LE(9));
+    await file.write(Buffer.alloc(4), 0, 4, summaryStart - 4);
+    return position;
+  } finally {
+    await file.close();
+  }
+}

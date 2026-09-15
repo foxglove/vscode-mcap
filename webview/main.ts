@@ -17,7 +17,6 @@ let viewerReady = false;
 let visualizing = false;
 let generation = 0;
 let readyTimer: number | undefined;
-let fileRequest: AbortController | undefined;
 let saving = false;
 let lastSnapshot = "";
 
@@ -194,29 +193,16 @@ async function saveLayout() {
     saving = false;
   }
 }
-async function loadFile(message: { url: string; name: string; size: number }) {
+function loadFile(message: { url: string }) {
   const current = ++generation;
-  fileRequest?.abort();
-  fileRequest = new AbortController();
   viewerReady = false;
+  delete el("viewerPane").dataset.ready;
   try {
-    const response = await fetch(message.url, { signal: fileRequest.signal });
-    if (!response.ok)
-      throw new Error(`Cannot read local MCAP (${response.status})`);
-    const blob = await response.blob();
-    if (current !== generation) return;
-    if (blob.size !== message.size)
-      throw new Error("MCAP file changed while loading. Reload the viewer.");
     viewer?.destroy();
     viewer = new FoxgloveViewer({
       parent: el("viewer"),
       orgSlug,
-      initialDataSource: {
-        type: "file",
-        file: new File([blob], message.name, {
-          type: "application/octet-stream",
-        }),
-      },
+      initialDataSource: { type: "remote-file", urls: [message.url] },
       initialLayoutParams: activeLayout
         ? { storageKey: activeLayout.id, opaqueLayout: activeLayout.data }
         : { storageKey: "mcap:default" },
@@ -275,7 +261,6 @@ el("retry").onclick = async () => {
   await saveLayout();
   generation++;
   window.clearTimeout(readyTimer);
-  fileRequest?.abort();
   viewer?.destroy();
   viewer = undefined;
   viewerReady = false;
@@ -383,7 +368,6 @@ window.addEventListener("pagehide", () => {
   generation++;
   window.clearInterval(snapshotTimer);
   window.clearTimeout(readyTimer);
-  fileRequest?.abort();
   viewer?.destroy();
 });
 syncTheme();

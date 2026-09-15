@@ -47,12 +47,6 @@
           "type": "string",
           "default": "",
           "description": "Foxglove organization slug for embedded viewer sign-in."
-        },
-        "mcap.maxViewerFileSizeMB": {
-          "type": "number",
-          "default": 512,
-          "minimum": 1,
-          "description": "Maximum file size copied into the embedded viewer. File information uses indexed reads independently of this limit."
         }
       }
     }
