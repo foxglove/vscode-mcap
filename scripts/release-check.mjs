@@ -23,6 +23,7 @@ if (manifest.icon !== "assets/icon.png")
   errors.push("The manifest must reference assets/icon.png.");
 for (const file of [
   "assets/icon.png",
+  "assets/screenshot.png",
   "LICENSE",
   "CHANGELOG.md",
   "THIRD_PARTY_NOTICES.md",

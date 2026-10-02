@@ -4,6 +4,14 @@
   "description": "Inspect MCAP files and visualize with Foxglove",
   "version": "0.1.0",
   "publisher": "foxglove",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxglove/vscode-mcap"
+  },
+  "homepage": "https://github.com/foxglove/vscode-mcap#readme",
+  "bugs": {
+    "url": "https://github.com/foxglove/vscode-mcap/issues"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -58,6 +66,7 @@
     "vscode:prepublish": "npm run check && npm run build",
     "package": "npm run release:check && vsce package --no-dependencies",
     "test:integration": "npm run build && node scripts/integration.mjs",
+    "screenshot": "npm run build && node scripts/integration.mjs --screenshot",
     "format": "prettier --write src webview test scripts package.json tsconfig.json .github *.md",
     "format:check": "prettier --check src webview test scripts package.json tsconfig.json .github *.md",
     "verify": "npm run format:check && npm run check && npm test && npm run build",

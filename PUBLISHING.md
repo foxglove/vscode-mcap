@@ -8,19 +8,7 @@ The project uses the MIT license in `LICENSE`, matching Foxglove CLI. Third-part
 
 Set the publisher account’s display name to **Foxglove** in the registry settings. The manifest’s publisher field is the stable account ID, not its display name. The package author is **Foxglove**.
 
-The publisher is set to `foxglove`, making the extension identifier `foxglove.mcap-viewer`. The public repository URL is still undecided. Once it is chosen, add the repository, homepage, and issue-tracker fields below to `package.json`:
-
-```json
-{
-  "publisher": "foxglove",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/YOUR_OWNER/YOUR_REPOSITORY"
-  },
-  "homepage": "https://github.com/YOUR_OWNER/YOUR_REPOSITORY#readme",
-  "bugs": { "url": "https://github.com/YOUR_OWNER/YOUR_REPOSITORY/issues" }
-}
-```
+The publisher is set to `foxglove`, making the extension identifier `foxglove.mcap-viewer`. Repository and support links point to `https://github.com/foxglove/vscode-mcap`. Confirm that the repository and issue tracker are publicly accessible before publishing.
 
 Use the same publisher ID on both registries. The extension identifier is `foxglove.mcap-viewer`; choose it before the first public release. If publishing under an existing organization, obtain contributor access to its publisher and Open VSX namespace. Changing the publisher later creates a different extension identity.
 
@@ -36,6 +24,12 @@ npm run package
 ```
 
 The package command checks release metadata and bundles runtime JavaScript, decompression WASM, the PNG icon, README, changelog, and license notices. Development tools, fixtures, logs, source maps, and credentials are excluded using an explicit package allowlist.
+
+CI runs integration tests on VS Code 1.96.0 and stable. To test a specific version locally, use `MCAP_TEST_VSCODE_VERSION=1.96.0 npm run test:integration`; this downloads that version rather than using the installed editor. `VSCODE_EXECUTABLE_PATH` can select a VS Code or Cursor executable explicitly. Unit tests use the `bzip2` CLI to create a compressed fixture; it is a development requirement, not a runtime dependency.
+
+VS Code 1.96 has an observed renderer limitation: dynamic iframe color-scheme changes do not update the embedded viewer's media query. Its integration run checks the SDK's theme setting, file transport, layouts, and scanning; stable additionally checks iframe theme propagation. The README calls out the older-editor theme limitation.
+
+To refresh the README screenshot from the production Foxglove Embed viewer, run `npm run screenshot`. It opens an isolated VS Code profile with a generated telemetry recording and a plot layout, waits up to 15 minutes for Foxglove device sign-in, then saves `assets/screenshot.png`. Sign in with an account that has Embed access. The capture profile is retained under the ignored `.vscode-test/screenshot-profile` directory so retakes can reuse sign-in. The recording contains no customer data. `MCAP_SCREENSHOT_PATH` can select a different output file. To capture the offline file-info view instead, use `MCAP_SCREENSHOT_PATH=assets/file-info.png npm run test:integration`.
 
 Before the first public upload:
 
