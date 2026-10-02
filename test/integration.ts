@@ -477,10 +477,15 @@ export async function run() {
         const child = restored
           .childFrames()
           .find((f) => f.url().startsWith("https://embed.foxglove.dev"));
-        if (!child) return;
-        const newUrl = await child.evaluate<string | undefined>(
-          "window.lastBytes && window.fileUrl",
-        );
+        if (!child || child.isDetached()) return;
+        // Reload destroys the old iframe asynchronously. It can detach between
+        // childFrames() and evaluate(), so retry only that expected transition.
+        const newUrl = await child
+          .evaluate<string | undefined>("window.lastBytes && window.fileUrl")
+          .catch((error: unknown) => {
+            if (child.isDetached()) return undefined;
+            throw error;
+          });
         return newUrl && newUrl !== oldUrl ? true : undefined;
       }, "reload restores range playback");
       await until(
