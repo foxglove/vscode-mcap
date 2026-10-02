@@ -22,9 +22,6 @@
   "extensionKind": [
     "workspace"
   ],
-  "activationEvents": [
-    "onCustomEditor:mcap.explorer"
-  ],
   "contributes": {
     "customEditors": [
       {
