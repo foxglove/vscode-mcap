@@ -2,7 +2,7 @@
 
 Inspect MCAP files and visualize with Foxglove in VS Code or Cursor.
 
-![MCAP file overview showing statistics, channels, and schemas](assets/screenshot.png)
+![Embedded Foxglove viewer plotting telemetry from an MCAP recording](assets/screenshot.png)
 
 Requires desktop VS Code 1.96 or later, or a compatible desktop Cursor release. Browser-based VS Code is not supported. For SSH or dev containers, install the extension on the remote host.
 

@@ -10,9 +10,10 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const port = server.address().port;
 await new Promise((r) => server.close(r));
 const temp = await mkdtemp(`${tmpdir()}/mcap-integration-`);
+const screenshot = process.argv.includes("--screenshot");
 try {
   await build({
-    entryPoints: ["test/integration.ts"],
+    entryPoints: [screenshot ? "test/screenshot.ts" : "test/integration.ts"],
     bundle: true,
     platform: "node",
     format: "cjs",
@@ -34,12 +35,17 @@ try {
       MCAP_TEST_DIR: temp,
       MCAP_CDP_PORT: String(port),
       MCAP_LIVE_EMBED: process.env.MCAP_LIVE_EMBED,
-      MCAP_SCREENSHOT_PATH: process.env.MCAP_SCREENSHOT_PATH,
+      MCAP_SCREENSHOT_PATH: screenshot
+        ? resolve(process.env.MCAP_SCREENSHOT_PATH || "assets/screenshot.png")
+        : process.env.MCAP_SCREENSHOT_PATH,
     },
     launchArgs: [
       temp,
       "--user-data-dir",
-      process.env.MCAP_TEST_USER_DATA_DIR || `${temp}/user`,
+      process.env.MCAP_TEST_USER_DATA_DIR ||
+        (screenshot
+          ? resolve(".vscode-test/screenshot-profile")
+          : `${temp}/user`),
       "--extensions-dir",
       `${temp}/extensions`,
       "--disable-workspace-trust",
