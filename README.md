@@ -1,6 +1,6 @@
 # Foxglove MCAP Explorer
 
-Inspect MCAP files and visualize with Foxglove in VS Code.
+Inspect MCAP files and visualize with [Foxglove](https://foxglove.dev/) in VS Code.
 
 ![Embedded Foxglove viewer plotting telemetry from an MCAP recording](assets/screenshot.png)
 
