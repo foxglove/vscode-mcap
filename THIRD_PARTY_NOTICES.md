@@ -32,6 +32,8 @@ SOFTWARE.
 
 License: MIT
 
+License notice confirmed by Foxglove for this version and vendored in `licenses/foxglove-embed.txt`; the npm package omits its license file.
+
 MIT License
 
 Copyright (c) Foxglove Technologies Inc

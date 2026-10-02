@@ -19,17 +19,25 @@ export async function writeNotices(metafiles) {
       /^(license|copying)(\.|$)/i.test(file),
     );
     let license;
+    let provenance = "";
     if (files.length)
       license = (
         await Promise.all(
           files.map((file) => readFile(join(dir, file), "utf8")),
         )
       ).join("\n\n");
-    else if (name === "@foxglove/embed" && pkg.license === "MIT") {
-      // The npm tarball declares MIT but omits the license file. Same copyright holder.
-      license = await readFile("node_modules/@mcap/support/LICENSE", "utf8");
+    else if (
+      name === "@foxglove/embed" &&
+      pkg.version === "0.70.0" &&
+      pkg.license === "MIT"
+    ) {
+      // Foxglove confirmed this notice for 0.70.0, whose npm tarball omits LICENSE.
+      // Require a new confirmation if a later version also omits its license file.
+      license = await readFile("licenses/foxglove-embed.txt", "utf8");
+      provenance =
+        "License notice confirmed by Foxglove for this version and vendored in `licenses/foxglove-embed.txt`; the npm package omits its license file.\n\n";
     } else throw new Error(`Missing bundled dependency license: ${name}`);
-    text += `## ${name} ${pkg.version}\n\nLicense: ${pkg.license}\n\n${license.trim()}\n\n`;
+    text += `## ${name} ${pkg.version}\n\nLicense: ${pkg.license}\n\n${provenance}${license.trim()}\n\n`;
   }
   for (const [name, file, source] of [
     [

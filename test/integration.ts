@@ -105,20 +105,6 @@ export async function run() {
     assert.equal(await frame.locator("#channels tr").count(), 0);
     await frame.locator("#filter").fill("sensor");
     assert.equal(await frame.locator("#channels tr").count(), 1);
-    if (
-      vscode.env.appName.includes("Cursor") &&
-      (await frame.page().locator("body").innerText()).includes(
-        "The best way to code with AI",
-      )
-    ) {
-      await mkdir("test-results", { recursive: true });
-      await frame
-        .page()
-        .screenshot({ path: "test-results/cursor-onboarding.png" });
-      throw new Error(
-        "Cursor automatic MCAP association and info rendering passed, but Cursor's first-run login screen blocks interaction. Complete Cursor login in a dedicated test profile to continue.",
-      );
-    }
     await frame.locator("#refresh").click();
     await frame.locator("#channels tr").waitFor();
     // Let iframe color-scheme inheritance drive media queries; Playwright defaults to light.

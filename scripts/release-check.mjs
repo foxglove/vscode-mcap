@@ -7,7 +7,7 @@ if (!manifest.license)
   );
 if (!manifest.publisher || manifest.publisher === "local-mcap")
   errors.push(
-    "Set package.json publisher to the publisher/namespace you own in both registries.",
+    "Set package.json publisher to the Visual Studio Marketplace publisher you own or can contribute to.",
   );
 const repository =
   typeof manifest.repository === "string"
@@ -41,5 +41,5 @@ if (errors.length) {
   process.exitCode = 1;
 } else
   console.log(
-    "Release metadata checks passed. Complete the authenticated playback and registry-account checklist in PUBLISHING.md before uploading.",
+    "Release metadata checks passed. Complete the authenticated playback and Marketplace publisher checklist in PUBLISHING.md before uploading.",
   );
