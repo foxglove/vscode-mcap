@@ -93,6 +93,11 @@ export function activate(context: vscode.ExtensionContext) {
             });
           disposables.push(
             layoutStore.subscribe(() => {
+              if (
+                selectedLayout?.id.startsWith("local:") &&
+                !layoutStore.list().some((l) => l.id === selectedLayout?.id)
+              )
+                selectedLayout = undefined;
               if (!disposed) void sendLayouts();
             }),
           );
@@ -267,12 +272,13 @@ export function activate(context: vscode.ExtensionContext) {
                     break;
                   }
                   case "removeLayout":
-                    if (typeof message.id === "string") {
-                      if (selectedLayout?.id === message.id)
-                        selectedLayout = undefined;
+                    if (
+                      typeof message.id === "string" &&
+                      message.id.startsWith("local:")
+                    ) {
+                      await layoutStore.remove(message.id);
                       if (preferences.get().layout?.id === message.id)
                         await preferences.update({ layout: undefined });
-                      await layoutStore.remove(message.id);
                     }
                     break;
                 }

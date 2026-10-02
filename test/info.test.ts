@@ -7,8 +7,9 @@ import { inspectFile, seconds } from "../src/info";
 import { fixture } from "./fixtures";
 import { compress } from "lz4js";
 import zstd from "@foxglove/wasm-zstd";
+import { execFileSync } from "node:child_process";
 
-for (const mode of ["indexed", "scan", "zstd", "lz4", "empty"] as const)
+for (const mode of ["indexed", "scan", "zstd", "lz4", "bz2", "empty"] as const)
   test(`reads ${mode} MCAP`, async () => {
     const dir = await mkdtemp(join(tmpdir(), "mcap-test-"));
     const path = join(dir, "test.mcap");
@@ -24,17 +25,27 @@ for (const mode of ["indexed", "scan", "zstd", "lz4", "empty"] as const)
                 compressedData: compress(data),
               }),
             }
-          : mode === "scan"
-            ? { useStatistics: false }
-            : mode === "zstd"
-              ? {
-                  useStatistics: false,
-                  compressChunk: (data) => ({
-                    compression: "zstd",
-                    compressedData: zstd.compress(data),
+          : mode === "bz2"
+            ? {
+                useStatistics: false,
+                compressChunk: (data) => ({
+                  compression: "bz2",
+                  compressedData: execFileSync("bzip2", ["-c"], {
+                    input: data,
                   }),
-                }
-              : {},
+                }),
+              }
+            : mode === "scan"
+              ? { useStatistics: false }
+              : mode === "zstd"
+                ? {
+                    useStatistics: false,
+                    compressChunk: (data) => ({
+                      compression: "zstd",
+                      compressedData: zstd.compress(data),
+                    }),
+                  }
+                : {},
         mode === "empty",
       );
       const info = await inspectFile(path);
@@ -50,11 +61,11 @@ for (const mode of ["indexed", "scan", "zstd", "lz4", "empty"] as const)
       } else assert.equal(info.start, undefined);
       assert.equal(
         info.method,
-        mode === "scan" || mode === "zstd" || mode === "lz4"
+        mode === "scan" || mode === "zstd" || mode === "lz4" || mode === "bz2"
           ? "scan"
           : "summary",
       );
-      if (mode === "zstd" || mode === "lz4")
+      if (mode === "zstd" || mode === "lz4" || mode === "bz2")
         assert.deepEqual(info.compression, [mode]);
     } finally {
       await rm(dir, { recursive: true, force: true });

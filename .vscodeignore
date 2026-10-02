@@ -5,6 +5,7 @@
 !CHANGELOG.md
 !THIRD_PARTY_NOTICES.md
 !assets/icon.png
+!assets/screenshot.png
 !dist/extension.js
 !dist/webview.js
 !dist/module.wasm

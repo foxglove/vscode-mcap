@@ -4,6 +4,14 @@
   "description": "Inspect MCAP files and visualize with Foxglove",
   "version": "0.1.0",
   "publisher": "foxglove",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxglove/vscode-mcap"
+  },
+  "homepage": "https://github.com/foxglove/vscode-mcap#readme",
+  "bugs": {
+    "url": "https://github.com/foxglove/vscode-mcap/issues"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },

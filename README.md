@@ -2,6 +2,10 @@
 
 Inspect MCAP files and visualize with Foxglove in VS Code or Cursor.
 
+![MCAP file overview showing statistics, channels, and schemas](assets/screenshot.png)
+
+Requires desktop VS Code 1.96 or later, or a compatible desktop Cursor release. Browser-based VS Code is not supported. For SSH or dev containers, install the extension on the remote host.
+
 ## Get started
 
 1. Install **MCAP Viewer** from the extension marketplace.
@@ -10,7 +14,7 @@ Inspect MCAP files and visualize with Foxglove in VS Code or Cursor.
 
 If the file opens in another editor, choose **Reopen Editor With… → MCAP Viewer**.
 
-Your last tab and layout are remembered, and the viewer follows your editor theme.
+Your last tab and layout are remembered, and the viewer follows your editor theme. On VS Code 1.96, the embedded Foxglove viewer may stay light when you switch themes; use a recent editor for full theme synchronization.
 
 ## Layouts and sign-in
 

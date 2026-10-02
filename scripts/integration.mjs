@@ -20,11 +20,13 @@ try {
     outfile: "dist/integration.js",
   });
   await runTests({
+    version: process.env.MCAP_TEST_VSCODE_VERSION,
     vscodeExecutablePath:
       process.env.VSCODE_EXECUTABLE_PATH ||
-      (process.platform === "darwin" &&
-      existsSync("/Applications/Visual Studio Code.app/Contents/MacOS/Electron")
-        ? "/Applications/Visual Studio Code.app/Contents/MacOS/Electron"
+      (!process.env.MCAP_TEST_VSCODE_VERSION &&
+      process.platform === "darwin" &&
+      existsSync("/Applications/Visual Studio Code.app/Contents/MacOS/Code")
+        ? "/Applications/Visual Studio Code.app/Contents/MacOS/Code"
         : undefined),
     extensionDevelopmentPath: resolve("."),
     extensionTestsPath: resolve("dist/integration.js"),
@@ -32,6 +34,7 @@ try {
       MCAP_TEST_DIR: temp,
       MCAP_CDP_PORT: String(port),
       MCAP_LIVE_EMBED: process.env.MCAP_LIVE_EMBED,
+      MCAP_SCREENSHOT_PATH: process.env.MCAP_SCREENSHOT_PATH,
     },
     launchArgs: [
       temp,
