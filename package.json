@@ -1,9 +1,9 @@
 {
-  "name": "mcap-viewer",
-  "displayName": "MCAP Viewer",
+  "name": "foxglove-mcap-explorer",
+  "displayName": "Foxglove MCAP Explorer",
   "description": "Inspect MCAP files and visualize with Foxglove",
   "version": "0.1.0",
-  "publisher": "foxglove",
+  "publisher": "Foxglove",
   "repository": {
     "type": "git",
     "url": "https://github.com/foxglove/vscode-mcap"
@@ -23,13 +23,13 @@
     "workspace"
   ],
   "activationEvents": [
-    "onCustomEditor:mcap.viewer"
+    "onCustomEditor:mcap.explorer"
   ],
   "contributes": {
     "customEditors": [
       {
-        "viewType": "mcap.viewer",
-        "displayName": "MCAP Viewer",
+        "viewType": "mcap.explorer",
+        "displayName": "Foxglove MCAP Explorer",
         "selector": [
           {
             "filenamePattern": "*.mcap"
@@ -49,7 +49,7 @@
       }
     ],
     "configuration": {
-      "title": "MCAP Viewer",
+      "title": "Foxglove MCAP Explorer",
       "properties": {
         "mcap.orgSlug": {
           "type": "string",
@@ -83,7 +83,7 @@
     "@types/node": "^22.20.2",
     "@types/vscode": "^1.96.0",
     "@vscode/test-electron": "^3.1.0",
-    "@vscode/vsce": "^3.9.2",
+    "@vscode/vsce": "^4.0.0",
     "esbuild": "^0.28.2",
     "lz4js": "^0.2.0",
     "playwright": "^1.63.0",

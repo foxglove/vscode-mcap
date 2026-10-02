@@ -17,7 +17,7 @@ export async function run() {
       },
     },
   });
-  await writer.start({ profile: "", library: "MCAP Viewer demo" });
+  await writer.start({ profile: "", library: "Foxglove MCAP Explorer demo" });
   const schemaId = await writer.registerSchema({
     name: "Telemetry",
     encoding: "jsonschema",

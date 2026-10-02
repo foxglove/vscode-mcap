@@ -17,7 +17,7 @@ export async function fixture(
       },
     },
   });
-  await writer.start({ profile: "", library: "mcap-viewer-test" });
+  await writer.start({ profile: "", library: "foxglove-mcap-explorer-test" });
   if (!empty) {
     const schemaId = await writer.registerSchema({
       name: "Reading",

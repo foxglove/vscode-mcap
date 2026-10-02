@@ -1,4 +1,4 @@
-# Publishing MCAP Viewer
+# Publishing Foxglove MCAP Explorer
 
 Publish the same reviewed VSIX to **Visual Studio Marketplace** for VS Code and **Open VSX** for Cursor. Cursor mirrors Open VSX, so discovery can lag behind publication. There is no separate Cursor upload step in this workflow. [Cursor guidance](https://forum.cursor.com/t/my-extension-not-searchable-in-cursor-marketplace-published-verified-on-open-vsx/165455)
 
@@ -8,9 +8,9 @@ The project uses the MIT license in `LICENSE`, matching Foxglove CLI. Third-part
 
 Set the publisher account’s display name to **Foxglove** in the registry settings. The manifest’s publisher field is the stable account ID, not its display name. The package author is **Foxglove**.
 
-The publisher is set to `foxglove`, making the extension identifier `foxglove.mcap-viewer`. Repository and support links point to `https://github.com/foxglove/vscode-mcap`. Confirm that the repository and issue tracker are publicly accessible before publishing.
+The publisher is set to `Foxglove`, making the extension identifier `Foxglove.foxglove-mcap-explorer`. Repository and support links point to `https://github.com/foxglove/vscode-mcap`. Confirm that the repository and issue tracker are publicly accessible before publishing.
 
-Use the same publisher ID on both registries. The extension identifier is `foxglove.mcap-viewer`; choose it before the first public release. If publishing under an existing organization, obtain contributor access to its publisher and Open VSX namespace. Changing the publisher later creates a different extension identity.
+Use the same publisher ID on both registries. The extension identifier is `Foxglove.foxglove-mcap-explorer`; choose it before the first public release. If publishing under an existing organization, obtain contributor access to its publisher and Open VSX namespace. Changing the publisher later creates a different extension identity.
 
 `npm run package` rejects incomplete metadata. `npm run package:local` can still produce a development VSIX before the identity is decided. No script publishes automatically.
 
@@ -47,7 +47,7 @@ Automated integration tests use the real Embed SDK with a controlled iframe to v
 
 1. Sign in to the [publisher management portal](https://marketplace.visualstudio.com/manage) and create a publisher, or join your organization's existing publisher.
 2. Set that publisher's ID in `package.json`, then run the validation and packaging commands above.
-3. In the portal, select the publisher, choose **New extension → Visual Studio Code**, and upload `mcap-viewer-0.1.0.vsix`.
+3. In the portal, select the publisher, choose **New extension → Visual Studio Code**, and upload `foxglove-mcap-explorer-0.1.0.vsix`.
 4. Wait for validation and check the public listing before announcing it.
 
 The portal upload is the simplest first release and does not require putting a publishing token into this repository. For later CLI automation, follow Microsoft's current authentication instructions. Microsoft recommends Entra ID for automated publishing; its documentation states that global Azure DevOps PATs retire on December 1, 2026. [Official publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -58,8 +58,8 @@ The portal upload is the simplest first release and does not require putting a p
 2. Authenticate the CLI and create the namespace matching `package.json`:
 
    ```sh
-   npx ovsx login foxglove
-   npx ovsx create-namespace foxglove
+   npx ovsx login Foxglove
+   npx ovsx create-namespace Foxglove
    ```
 
    Enter the Open VSX token at the prompt. Skip namespace creation if it already exists and you are a contributor. The CLI normally uses the OS credential manager; see its documentation for fallback behavior.
@@ -67,11 +67,11 @@ The portal upload is the simplest first release and does not require putting a p
 3. Publish the reviewed package:
 
    ```sh
-   npx ovsx publish mcap-viewer-0.1.0.vsix
+   npx ovsx publish foxglove-mcap-explorer-0.1.0.vsix
    ```
 
 4. Follow the namespace ownership process if the namespace is not yet verified. Namespace creation grants contributor access; verified ownership is a separate step.
-5. Check the Open VSX listing, then search Cursor by `foxglove.mcap-viewer` after its registry has synced. If it remains absent, check Cursor's VS Code engine compatibility and contact Cursor support. A VSIX install remains available meanwhile.
+5. Check the Open VSX listing, then search Cursor by `Foxglove.foxglove-mcap-explorer` after its registry has synced. If it remains absent, check Cursor's VS Code engine compatibility and contact Cursor support. A VSIX install remains available meanwhile.
 
 Sources: [Open VSX publishing](https://github.com/eclipse-openvsx/openvsx/wiki/Publishing-Extensions), [CLI authentication](https://github.com/eclipse-openvsx/openvsx/blob/main/cli/README.md), [namespace ownership](https://github.com/eclipse-openvsx/openvsx/wiki/Namespace-Access).
 

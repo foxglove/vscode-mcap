@@ -35,12 +35,12 @@ export function activate(context: vscode.ExtensionContext) {
       context.secrets.delete("foxglove.apiKey"),
     ),
     vscode.window.registerCustomEditorProvider(
-      "mcap.viewer",
+      "mcap.explorer",
       {
         async openCustomDocument(uri: vscode.Uri) {
           if (uri.scheme !== "file")
             throw new Error(
-              "MCAP Viewer requires a file on the extension host filesystem. In SSH/containers, install this extension remotely.",
+              "Foxglove MCAP Explorer requires a file on the extension host filesystem. In SSH/containers, install this extension remotely.",
             );
           return { uri, dispose() {} };
         },

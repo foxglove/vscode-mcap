@@ -52,7 +52,7 @@ export async function run() {
         vscode.window.tabGroups.activeTabGroup.activeTab!
           .input as vscode.TabInputCustom
       ).viewType,
-      "mcap.viewer",
+      "mcap.explorer",
     );
     const frame = await until<Frame>(async () => {
       for (const context of browser.contexts())

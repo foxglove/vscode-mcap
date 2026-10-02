@@ -1,4 +1,4 @@
-# MCAP Viewer
+# Foxglove MCAP Explorer
 
 Inspect MCAP files and visualize with Foxglove in VS Code or Cursor.
 
@@ -8,11 +8,11 @@ Requires desktop VS Code 1.96 or later, or a compatible desktop Cursor release. 
 
 ## Get started
 
-1. Install **MCAP Viewer** from the extension marketplace.
+1. Install **Foxglove MCAP Explorer** from the extension marketplace.
 2. Open an `.mcap` file to see file size, duration, message counts, channels, and schemas. No CLI or account is needed for file information.
 3. Select **Foxglove** to visualize the recording. Sign in if prompted. Visualization requires internet access and [Foxglove Embed access](https://docs.foxglove.dev/docs/embed).
 
-If the file opens in another editor, choose **Reopen Editor With… → MCAP Viewer**.
+If the file opens in another editor, choose **Reopen Editor With… → Foxglove MCAP Explorer**.
 
 Your last tab and layout are remembered, and the viewer follows your editor theme. On VS Code 1.96, the embedded Foxglove viewer may stay light when you switch themes; use a recent editor for full theme synchronization.
 
