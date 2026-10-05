@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Update README with clearer getting-started instructions and community links.
+
 ## 0.1.0
 
 Initial release.
