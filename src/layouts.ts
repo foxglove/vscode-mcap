@@ -15,7 +15,7 @@ export async function listLayouts(
   const response = await request(
     "https://api.foxglove.dev/v1/layouts?includeData=true",
     {
-      headers: { Authorization: `ApiKey ${key}` },
+      headers: { Authorization: `Bearer ${key}` },
       signal: AbortSignal.timeout(20000),
       redirect: "error",
     },

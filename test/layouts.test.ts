@@ -9,7 +9,7 @@ test("shared layouts use API key auth and retain opaque data", async () => {
   };
   const result = await listLayouts("test-secret", async (url, init) => {
     assert.equal(url, "https://api.foxglove.dev/v1/layouts?includeData=true");
-    assert.deepEqual(init?.headers, { Authorization: "ApiKey test-secret" });
+    assert.deepEqual(init?.headers, { Authorization: "Bearer test-secret" });
     assert.equal(init?.redirect, "error");
     return new Response(
       JSON.stringify([
